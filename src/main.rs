@@ -1,17 +1,22 @@
 mod game;
+mod input;
 mod script;
 mod script_component;
 mod scripts;
 mod sprite;
 
 use phantom_core::ecs::{World, components::Transform};
+use raylib::math::{Rectangle, Vector2};
+use raylib::prelude::RaylibTexture2D;
 use raylib::{color::Color, prelude::RaylibDraw};
 
+use crate::input::Input;
 use crate::script::Script;
 use crate::scripts::player::Player;
 use crate::sprite::Sprite;
 
 fn main() {
+    let mut input = Input::new();
     let mut scripts: Vec<Box<dyn Script>> = vec![Box::new(Player::new())];
 
     let (mut rl, thread) = raylib::init().size(1280, 720).build();
@@ -19,7 +24,7 @@ fn main() {
     let mut world = World::new();
 
     for script in &mut scripts {
-        script.start(&mut world);
+        script.start(&mut world, &mut input);
     }
 
     let entities = &world.query_with2::<Transform, Sprite>();
@@ -32,21 +37,47 @@ fn main() {
     }
 
     while !rl.window_should_close() {
+        //Gather input
+        input.w = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_W);
+        input.a = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_A);
+        input.s = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_S);
+        input.d = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_D);
+        input.space = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_SPACE);
+
         let mut d = rl.begin_drawing(&thread);
 
         d.clear_background(Color::BLACK);
         //Run Scripts Update
         for script in &mut scripts {
-            script.update(&mut world);
+            script.update(&mut world, &mut input);
         }
         //Draw Sprites
         for entity in entities {
             let transform = world.get_component::<Transform>(*entity).unwrap();
             let sprite = world.get_component::<Sprite>(*entity).unwrap();
-            d.draw_texture(
+            d.draw_texture_pro(
                 &sprite.texture.as_ref().unwrap(),
-                transform.position.x as i32,
-                transform.position.y as i32,
+                Rectangle::new(
+                    0.0,
+                    0.0,
+                    sprite.texture.as_ref().unwrap().width() as f32,
+                    sprite.texture.as_ref().unwrap().height as f32,
+                ),
+                Rectangle::new(
+                    transform.position.x,
+                    transform.position.y,
+                    sprite.texture.as_ref().unwrap().width() as f32,
+                    sprite.texture.as_ref().unwrap().height as f32,
+                ),
+                Vector2::new(
+                    sprite.texture.as_ref().unwrap().width() as f32 / 2.0,
+                    sprite.texture.as_ref().unwrap().height as f32 / 2.0,
+                ),
+                transform
+                    .rotation
+                    .to_euler(glam::EulerRot::XYZ)
+                    .2
+                    .to_degrees(),
                 Color::WHITE,
             );
         }
