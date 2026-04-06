@@ -1,3 +1,4 @@
+mod config;
 mod game;
 mod input;
 mod script;
@@ -10,6 +11,7 @@ use raylib::math::{Rectangle, Vector2};
 use raylib::prelude::RaylibTexture2D;
 use raylib::{color::Color, prelude::RaylibDraw};
 
+use crate::config::Config;
 use crate::input::Input;
 use crate::script::Script;
 use crate::scripts::player::Player;
@@ -19,12 +21,18 @@ fn main() {
     let mut input = Input::new();
     let mut scripts: Vec<Box<dyn Script>> = vec![Box::new(Player::new())];
 
-    let (mut rl, thread) = raylib::init().size(1280, 720).build();
+    let config = Config {
+        width: 1280,
+        height: 720,
+    };
+
+    let (mut rl, thread) = raylib::init().size(config.width, config.height).build();
+    rl.set_window_monitor(0);
 
     let mut world = World::new();
 
     for script in &mut scripts {
-        script.start(&mut world, &mut input);
+        script.start(&mut world, &mut input, &config);
     }
 
     let entities = &world.query_with2::<Transform, Sprite>();
@@ -49,7 +57,7 @@ fn main() {
         d.clear_background(Color::BLACK);
         //Run Scripts Update
         for script in &mut scripts {
-            script.update(&mut world, &mut input);
+            script.update(&mut world, &mut input, &config);
         }
         //Draw Sprites
         for entity in entities {
