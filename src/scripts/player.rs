@@ -11,14 +11,18 @@ pub struct Player {
     id: u32,
     fly_speed: f32,
     rotation_speed: f32,
+    velocity: Vec3,
+    max_speed: f32,
 }
 
 impl Player {
     pub fn new() -> Self {
         Self {
             id: INVALID,
-            fly_speed: 0.01,
+            fly_speed: 1.0,
             rotation_speed: 0.001,
+            velocity: Vec3::ZERO,
+            max_speed: 0.02,
         }
     }
 }
@@ -32,7 +36,7 @@ impl Script for Player {
             self.id,
             Sprite::new("/home/osii/Dev/Rust/astroidioid/src/sprites/player.png"),
         );
-
+        //Center Player
         let transform = world.get_component_mut::<Transform>(self.id).unwrap();
         transform.position = Vec3 {
             x: config.width as f32 / 2.0,
@@ -43,13 +47,19 @@ impl Script for Player {
     fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
         let transform = world.get_component_mut::<Transform>(self.id).unwrap();
 
-        let move_input = (input.s as i32 as f32 - input.w as i32 as f32) * self.fly_speed;
         let rotation_input = (input.d as i32 as f32 - input.a as i32 as f32) * self.rotation_speed;
 
         let rotation = transform.rotation.to_euler(glam::EulerRot::XYZ).2;
         transform.rotation = Quat::from_rotation_z(rotation + rotation_input);
 
-        let forward = transform.rotation * Vec3::Y;
-        transform.position += forward * move_input;
+        let forward = transform.rotation * Vec3::NEG_Y;
+        if input.w {
+            self.velocity += forward * self.fly_speed * config.delta_time;
+        }
+
+        let dampening: f32 = 0.01;
+        self.velocity *= dampening.powf(config.delta_time);
+        self.velocity = self.velocity.clamp_length_max(self.max_speed);
+        transform.position += self.velocity;
     }
 }

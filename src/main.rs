@@ -21,9 +21,10 @@ fn main() {
     let mut input = Input::new();
     let mut scripts: Vec<Box<dyn Script>> = vec![Box::new(Player::new())];
 
-    let config = Config {
+    let mut config = Config {
         width: 1280,
         height: 720,
+        delta_time: 0.0,
     };
 
     let (mut rl, thread) = raylib::init().size(config.width, config.height).build();
@@ -45,6 +46,7 @@ fn main() {
     }
 
     while !rl.window_should_close() {
+        config.delta_time = rl.get_frame_time();
         //Gather input
         input.w = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_W);
         input.a = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_A);
