@@ -16,6 +16,7 @@ use crate::input::Input;
 use crate::script::Script;
 use crate::scripts::asteroid_manager::AsteroidManager;
 use crate::scripts::bullet_manager::BulletManager;
+use crate::scripts::collision_manager::CollisionManager;
 use crate::scripts::player::Player;
 use crate::scripts::screen_wrapper::ScreenWrapper;
 
@@ -26,6 +27,7 @@ fn main() {
         Box::new(Player::new()),
         Box::new(AsteroidManager::new()),
         Box::new(BulletManager::new()),
+        Box::new(CollisionManager::new()),
     ];
 
     let mut config = Config {

@@ -9,7 +9,7 @@ pub struct ScreenWrapper {
 impl ScreenWrapper {
     pub fn new() -> Self {
         Self {
-            wrap_tolerance: 10.0,
+            wrap_tolerance: 15.0,
         }
     }
 }

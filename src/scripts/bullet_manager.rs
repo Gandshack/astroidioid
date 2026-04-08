@@ -8,6 +8,7 @@ use crate::{config::Config, input::Input};
 use glam::Vec3;
 use phantom_core::ecs::World;
 use phantom_core::ecs::components::Transform;
+use raylib::prelude::RaylibTexture2D;
 
 pub struct BulletManager {
     max_bullets: u32,
@@ -60,14 +61,16 @@ impl Script for BulletManager {
                 bullet_component.lifetime = 0.0;
             }
 
-            let mut player_position = Vec3::ZERO;
-            {
-                let player_transform = world.get_component::<Transform>(player_id).unwrap();
-                player_position = player_transform.position.clone();
-            }
+            let player_transform = world.get_component::<Transform>(player_id).unwrap();
+            let player_position = player_transform.position.clone();
+
+            let player_sprite = world.get_component::<Sprite>(player_id).unwrap();
+            let sprite_size = player_sprite.texture.as_ref().unwrap().height().clone();
+            let margin = 10.0;
+            let offset = ((sprite_size as f32 / 2.0) + margin) * player_forward;
 
             let bullet_transform = world.get_component_mut::<Transform>(bullet_id).unwrap();
-            bullet_transform.position = player_position;
+            bullet_transform.position = player_position + offset;
 
             self.next_bullet = (self.next_bullet + 1) % self.bullet_ids.len();
         }
@@ -86,6 +89,7 @@ impl Script for BulletManager {
             if bullet_component.lifetime >= bullet_component.max_lifetime {
                 bullet_component.lifetime = 0.0;
                 bullet_component.velocity = Vec3::ZERO;
+                bullet_component.forward = Vec3::ZERO;
                 let bullet_transform = world.get_component_mut::<Transform>(*bullet).unwrap();
                 bullet_transform.position = self.offscreen_position;
             }
