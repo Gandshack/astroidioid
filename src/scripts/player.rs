@@ -1,4 +1,8 @@
-use crate::{components::sprite::Sprite, config::Config, input::Input};
+use crate::{
+    components::{player_tag::PlayerTag, sprite::Sprite},
+    config::Config,
+    input::Input,
+};
 use glam::{Quat, Vec3};
 use phantom_core::{
     constants::constants::INVALID,
@@ -31,6 +35,7 @@ impl Script for Player {
     fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {
         self.id = world.spawn();
 
+        world.add_component::<PlayerTag>(self.id, PlayerTag::new());
         world.add_component::<Sprite>(self.id, Sprite::new("src/sprites/player.png"));
         //Center Player
         let transform = world.get_component_mut::<Transform>(self.id).unwrap();

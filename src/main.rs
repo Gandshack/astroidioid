@@ -15,6 +15,7 @@ use crate::config::Config;
 use crate::input::Input;
 use crate::script::Script;
 use crate::scripts::asteroid_manager::AsteroidManager;
+use crate::scripts::bullet_manager::BulletManager;
 use crate::scripts::player::Player;
 use crate::scripts::screen_wrapper::ScreenWrapper;
 
@@ -24,6 +25,7 @@ fn main() {
         Box::new(ScreenWrapper::new()),
         Box::new(Player::new()),
         Box::new(AsteroidManager::new()),
+        Box::new(BulletManager::new()),
     ];
 
     let mut config = Config {
@@ -57,7 +59,7 @@ fn main() {
         input.a = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_A);
         input.s = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_S);
         input.d = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_D);
-        input.space = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_SPACE);
+        input.space = rl.is_key_pressed(raylib::ffi::KeyboardKey::KEY_SPACE);
 
         let mut d = rl.begin_drawing(&thread);
 

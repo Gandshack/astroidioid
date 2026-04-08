@@ -2,11 +2,15 @@ use phantom_core::ecs::{World, components::Transform};
 
 use crate::{components::sprite::Sprite, config::Config, input::Input, script::Script};
 
-pub struct ScreenWrapper {}
+pub struct ScreenWrapper {
+    wrap_tolerance: f32,
+}
 
 impl ScreenWrapper {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            wrap_tolerance: 10.0,
+        }
     }
 }
 
@@ -20,18 +24,18 @@ impl Script for ScreenWrapper {
                 .position
                 .clone();
 
-            if position.x >= config.width as f32 {
+            if position.x >= config.width as f32 + self.wrap_tolerance {
                 let transform = world.get_component_mut::<Transform>(id).unwrap();
                 transform.position.x = 0.0;
-            } else if position.x <= 0.0 {
+            } else if position.x <= 0.0 - self.wrap_tolerance {
                 let transform = world.get_component_mut::<Transform>(id).unwrap();
                 transform.position.x = config.width as f32;
             }
 
-            if position.y >= config.height as f32 {
+            if position.y >= config.height as f32 + self.wrap_tolerance {
                 let transform = world.get_component_mut::<Transform>(id).unwrap();
                 transform.position.y = 0.0;
-            } else if position.y <= 0.0 {
+            } else if position.y <= 0.0 - self.wrap_tolerance {
                 let transform = world.get_component_mut::<Transform>(id).unwrap();
                 transform.position.y = config.height as f32;
             }
