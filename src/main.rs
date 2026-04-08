@@ -1,25 +1,30 @@
+mod components;
 mod config;
 mod game;
 mod input;
 mod script;
-mod script_component;
 mod scripts;
-mod sprite;
 
 use phantom_core::ecs::{World, components::Transform};
 use raylib::math::{Rectangle, Vector2};
 use raylib::prelude::RaylibTexture2D;
 use raylib::{color::Color, prelude::RaylibDraw};
 
+use crate::components::sprite::Sprite;
 use crate::config::Config;
 use crate::input::Input;
 use crate::script::Script;
+use crate::scripts::asteroid_manager::AsteroidManager;
 use crate::scripts::player::Player;
-use crate::sprite::Sprite;
+use crate::scripts::screen_wrapper::ScreenWrapper;
 
 fn main() {
     let mut input = Input::new();
-    let mut scripts: Vec<Box<dyn Script>> = vec![Box::new(Player::new())];
+    let mut scripts: Vec<Box<dyn Script>> = vec![
+        Box::new(ScreenWrapper::new()),
+        Box::new(Player::new()),
+        Box::new(AsteroidManager::new()),
+    ];
 
     let mut config = Config {
         width: 1280,

@@ -1,1 +1,3 @@
+pub mod asteroid_manager;
 pub mod player;
+pub mod screen_wrapper;

@@ -1,4 +1,4 @@
-use crate::{config::Config, input::Input, sprite::Sprite};
+use crate::{components::sprite::Sprite, config::Config, input::Input};
 use glam::{Quat, Vec3};
 use phantom_core::{
     constants::constants::INVALID,
@@ -19,23 +19,19 @@ impl Player {
     pub fn new() -> Self {
         Self {
             id: INVALID,
-            fly_speed: 1.0,
+            fly_speed: 1000.0,
             rotation_speed: 0.001,
             velocity: Vec3::ZERO,
-            max_speed: 0.02,
+            max_speed: 1000.0,
         }
     }
 }
 
-impl Component for Player {}
 impl Script for Player {
     fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {
         self.id = world.spawn();
 
-        world.add_component::<Sprite>(
-            self.id,
-            Sprite::new("/home/osii/Dev/Rust/astroidioid/src/sprites/player.png"),
-        );
+        world.add_component::<Sprite>(self.id, Sprite::new("src/sprites/player.png"));
         //Center Player
         let transform = world.get_component_mut::<Transform>(self.id).unwrap();
         transform.position = Vec3 {
@@ -60,6 +56,6 @@ impl Script for Player {
         let dampening: f32 = 0.01;
         self.velocity *= dampening.powf(config.delta_time);
         self.velocity = self.velocity.clamp_length_max(self.max_speed);
-        transform.position += self.velocity;
+        transform.position += self.velocity * config.delta_time;
     }
 }
