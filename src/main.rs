@@ -45,15 +45,6 @@ fn main() {
         script.start(&mut world, &mut input, &config);
     }
 
-    let entities = &world.query_with2::<Transform, Sprite>();
-
-    //Load Textures
-    for entity in entities {
-        let sprite_component = world.get_component_mut::<Sprite>(*entity).unwrap();
-        sprite_component.texture =
-            Some(rl.load_texture(&thread, sprite_component.filename).unwrap());
-    }
-
     while !rl.window_should_close() {
         config.delta_time = rl.get_frame_time();
         //Gather input
@@ -63,42 +54,55 @@ fn main() {
         input.d = rl.is_key_down(raylib::ffi::KeyboardKey::KEY_D);
         input.space = rl.is_key_pressed(raylib::ffi::KeyboardKey::KEY_SPACE);
 
-        let mut d = rl.begin_drawing(&thread);
-
-        d.clear_background(Color::BLACK);
         //Run Scripts Update
         for script in &mut scripts {
             script.update(&mut world, &mut input, &config);
         }
+        let entities = &world.query_with2::<Transform, Sprite>();
+
+        //Load Textures
+        for entity in entities {
+            let sprite_component = world.get_component_mut::<Sprite>(*entity).unwrap();
+            if sprite_component.texture.is_none() {
+                sprite_component.texture =
+                    Some(rl.load_texture(&thread, sprite_component.filename).unwrap());
+            }
+        }
+
+        let mut d = rl.begin_drawing(&thread);
+
+        d.clear_background(Color::BLACK);
         //Draw Sprites
         for entity in entities {
             let transform = world.get_component::<Transform>(*entity).unwrap();
             let sprite = world.get_component::<Sprite>(*entity).unwrap();
-            d.draw_texture_pro(
-                &sprite.texture.as_ref().unwrap(),
-                Rectangle::new(
-                    0.0,
-                    0.0,
-                    sprite.texture.as_ref().unwrap().width() as f32,
-                    sprite.texture.as_ref().unwrap().height as f32,
-                ),
-                Rectangle::new(
-                    transform.position.x,
-                    transform.position.y,
-                    sprite.texture.as_ref().unwrap().width() as f32,
-                    sprite.texture.as_ref().unwrap().height as f32,
-                ),
-                Vector2::new(
-                    sprite.texture.as_ref().unwrap().width() as f32 / 2.0,
-                    sprite.texture.as_ref().unwrap().height as f32 / 2.0,
-                ),
-                transform
-                    .rotation
-                    .to_euler(glam::EulerRot::XYZ)
-                    .2
-                    .to_degrees(),
-                Color::WHITE,
-            );
+            if !sprite.texture.is_none() {
+                d.draw_texture_pro(
+                    &sprite.texture.as_ref().unwrap(),
+                    Rectangle::new(
+                        0.0,
+                        0.0,
+                        sprite.texture.as_ref().unwrap().width() as f32,
+                        sprite.texture.as_ref().unwrap().height as f32,
+                    ),
+                    Rectangle::new(
+                        transform.position.x,
+                        transform.position.y,
+                        sprite.texture.as_ref().unwrap().width() as f32,
+                        sprite.texture.as_ref().unwrap().height as f32,
+                    ),
+                    Vector2::new(
+                        sprite.texture.as_ref().unwrap().width() as f32 / 2.0,
+                        sprite.texture.as_ref().unwrap().height as f32 / 2.0,
+                    ),
+                    transform
+                        .rotation
+                        .to_euler(glam::EulerRot::XYZ)
+                        .2
+                        .to_degrees(),
+                    Color::WHITE,
+                );
+            }
         }
     }
 }

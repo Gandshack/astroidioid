@@ -7,20 +7,16 @@ use crate::{
     script::Script,
 };
 use glam::{Quat, Vec3};
-use phantom_core::{constants::constants::INVALID, ecs::World, ecs::components::Transform};
+use phantom_core::{ecs::World, ecs::components::Transform};
 use rand::{Rng, RngExt, rng};
 
 pub struct AsteroidManager {
     asteroid_count: i32,
-    asteroid_ids: Vec<u32>,
 }
 
 impl AsteroidManager {
     pub fn new() -> Self {
-        Self {
-            asteroid_count: 10,
-            asteroid_ids: Vec::new(),
-        }
+        Self { asteroid_count: 10 }
     }
 }
 
@@ -42,12 +38,12 @@ impl Script for AsteroidManager {
             };
 
             transform.rotation = Quat::from_euler(glam::EulerRot::XYZ, 0.0, 0.0, random_rotation());
-            self.asteroid_ids.push(id);
         }
     }
 
     fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
-        for id in self.asteroid_ids.iter() {
+        let asteroid_ids = world.query_with::<Asteroid>();
+        for id in asteroid_ids.iter() {
             let mut forward = Vec3::ZERO;
             {
                 let transform = world.get_component_mut::<Transform>(*id).unwrap();

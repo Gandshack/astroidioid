@@ -1,5 +1,3 @@
-use std::thread::spawn;
-
 use crate::components::bullet::Bullet;
 use crate::components::player_tag::PlayerTag;
 use crate::components::sprite::Sprite;
@@ -12,7 +10,6 @@ use raylib::prelude::RaylibTexture2D;
 
 pub struct BulletManager {
     max_bullets: u32,
-    bullet_ids: Vec<u32>,
     next_bullet: usize,
     offscreen_position: Vec3,
 }
@@ -21,7 +18,6 @@ impl BulletManager {
     pub fn new() -> Self {
         Self {
             max_bullets: 10,
-            bullet_ids: Vec::new(),
             next_bullet: 0,
             offscreen_position: Vec3::new(-9.0, -9.0, -9.0),
         }
@@ -29,24 +25,16 @@ impl BulletManager {
 }
 
 impl Script for BulletManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {
-        // Spawn all bullets and put them of screen
-        for _bullet in 0..self.max_bullets {
-            let id = world.spawn();
-
-            world.add_component::<Sprite>(id, Sprite::new("src/sprites/bullet.png"));
-            world.add_component::<Bullet>(id, Bullet::new());
-
-            let transform = world.get_component_mut::<Transform>(id).unwrap();
-            transform.position = self.offscreen_position;
-
-            self.bullet_ids.push(id);
-        }
-    }
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
     fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+        let bullet_ids = world.query_with::<Bullet>();
         // Spawn bullets on player
         if input.space {
-            let bullet_id = self.bullet_ids[self.next_bullet];
+            let bullet_id = world.spawn();
+
+            world.add_component::<Sprite>(bullet_id, Sprite::new("src/sprites/bullet.png"));
+            world.add_component::<Bullet>(bullet_id, Bullet::new());
+
             let player_id = world.query_with::<PlayerTag>().first().unwrap().clone();
 
             let mut player_forward = Vec3::ZERO;
@@ -71,27 +59,26 @@ impl Script for BulletManager {
 
             let bullet_transform = world.get_component_mut::<Transform>(bullet_id).unwrap();
             bullet_transform.position = player_position + offset;
-
-            self.next_bullet = (self.next_bullet + 1) % self.bullet_ids.len();
         }
 
         // Move Bullets
-        for bullet in &self.bullet_ids {
-            let bullet_component = world.get_component_mut::<Bullet>(*bullet).unwrap();
+        for bullet in bullet_ids {
+            let bullet_component = world.get_component_mut::<Bullet>(bullet).unwrap();
             let velocity = bullet_component.forward * bullet_component.speed;
             bullet_component.velocity = velocity.clone();
 
-            let bullet_transform = world.get_component_mut::<Transform>(*bullet).unwrap();
+            let bullet_transform = world.get_component_mut::<Transform>(bullet).unwrap();
             bullet_transform.position += velocity * config.delta_time;
 
-            let bullet_component = world.get_component_mut::<Bullet>(*bullet).unwrap();
+            let bullet_component = world.get_component_mut::<Bullet>(bullet).unwrap();
             bullet_component.lifetime += config.delta_time;
             if bullet_component.lifetime >= bullet_component.max_lifetime {
-                bullet_component.lifetime = 0.0;
-                bullet_component.velocity = Vec3::ZERO;
-                bullet_component.forward = Vec3::ZERO;
-                let bullet_transform = world.get_component_mut::<Transform>(*bullet).unwrap();
-                bullet_transform.position = self.offscreen_position;
+                world.destroy(bullet);
+                // bullet_component.lifetime = 0.0;
+                // bullet_component.velocity = Vec3::ZERO;
+                // bullet_component.forward = Vec3::ZERO;
+                // let bullet_transform = world.get_component_mut::<Transform>(bullet).unwrap();
+                // bullet_transform.position = self.offscreen_position;
             }
         }
     }
