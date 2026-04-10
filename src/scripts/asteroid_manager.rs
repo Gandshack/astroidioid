@@ -26,7 +26,9 @@ impl Script for AsteroidManager {
             let id = world.spawn();
 
             world.add_component::<Sprite>(id, Sprite::new("src/sprites/asteroid_big.png"));
-            world.add_component::<Asteroid>(id, Asteroid::new());
+            world.add_component::<Asteroid>(id, Asteroid::new(0));
+            let asteroid = world.get_component_mut::<Asteroid>(id).unwrap();
+            asteroid.radius = 64 / 2; //64 pix hardcoded to avoid crash when searching sprite size directly
 
             let transform = world.get_component_mut::<Transform>(id).unwrap();
             let x = rng().random_range(0..config.width);
