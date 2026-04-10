@@ -2,8 +2,11 @@ use std::f32::consts::PI;
 
 use crate::components::asteroid::Asteroid;
 use crate::components::bullet::Bullet;
+use crate::components::game_state::GameState;
+use crate::components::player_component::PlayerComponent;
 use crate::components::sprite::Sprite;
 use crate::script::Script;
+use crate::scripts::player::Player;
 use crate::{config::Config, input::Input};
 use glam::{Quat, Vec3};
 use phantom_core::ecs::components::Transform;
@@ -20,6 +23,7 @@ impl CollisionManager {
 impl Script for CollisionManager {
     fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
     fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+        let game_state_id = world.query_with::<GameState>().first().unwrap().clone();
         // Bullet to asteroid
         for bullet in world.query_with::<Bullet>() {
             let bullet_position = world.get_component::<Transform>(bullet).unwrap().position;
@@ -57,6 +61,9 @@ impl Script for CollisionManager {
                                 new_stage,
                                 world,
                             );
+                            let game_state =
+                                world.get_component_mut::<GameState>(game_state_id).unwrap();
+                            game_state.score += 100;
                         }
                         1 => {
                             //spawn 2 stage 1 asteroids (Small Sized)
@@ -81,11 +88,75 @@ impl Script for CollisionManager {
                                 new_stage,
                                 world,
                             );
+                            spawn_asteroid(
+                                world.spawn(),
+                                texture_path,
+                                size,
+                                position,
+                                new_stage,
+                                world,
+                            );
+                            let game_state =
+                                world.get_component_mut::<GameState>(game_state_id).unwrap();
+                            game_state.score += 250;
                         }
-                        _ => {}
+                        _ => {
+                            let game_state =
+                                world.get_component_mut::<GameState>(game_state_id).unwrap();
+                            game_state.score += 500;
+                        }
                     }
                     world.destroy(asteroid);
                     world.destroy(bullet);
+                    break;
+                }
+            }
+        }
+        // Bullet to player
+        if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
+            for bullet in world.query_with::<Bullet>() {
+                let bullet_position = world.get_component::<Transform>(bullet).unwrap().position;
+
+                let player_position = world
+                    .get_component::<Transform>(*player_id)
+                    .unwrap()
+                    .position;
+                let distance_to_player = bullet_position.distance(player_position);
+                let collision_radius = world
+                    .get_component::<PlayerComponent>(*player_id)
+                    .unwrap()
+                    .radius;
+                if distance_to_player <= collision_radius as f32 {
+                    let game_state = world.get_component_mut::<GameState>(game_state_id).unwrap();
+                    game_state.lives -= 1;
+                    world.destroy(*player_id);
+                    break;
+                }
+            }
+        }
+        // Asteroid to Player
+        if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
+            for asteroid in world.query_with::<Asteroid>() {
+                let asteroid_position =
+                    world.get_component::<Transform>(asteroid).unwrap().position;
+
+                let player_position = world
+                    .get_component::<Transform>(*player_id)
+                    .unwrap()
+                    .position;
+                let distance_to_player = asteroid_position.distance(player_position);
+                let player_collision_radius = world
+                    .get_component::<PlayerComponent>(*player_id)
+                    .unwrap()
+                    .radius;
+                let asteroid_collision_radius =
+                    world.get_component::<Asteroid>(asteroid).unwrap().radius;
+                if distance_to_player
+                    <= player_collision_radius as f32 + asteroid_collision_radius as f32
+                {
+                    let game_state = world.get_component_mut::<GameState>(game_state_id).unwrap();
+                    game_state.lives -= 1;
+                    world.destroy(*player_id);
                     break;
                 }
             }

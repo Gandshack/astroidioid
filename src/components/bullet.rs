@@ -16,7 +16,7 @@ impl Bullet {
         Self {
             velocity: Vec3::ZERO,
             speed: 300.0,
-            max_lifetime: 2.0,
+            max_lifetime: 3.0,
             lifetime: 0.0, //secs
             forward: Vec3::ZERO,
         }

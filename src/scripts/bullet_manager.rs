@@ -1,5 +1,5 @@
 use crate::components::bullet::Bullet;
-use crate::components::player_tag::PlayerTag;
+use crate::components::player_component::PlayerComponent;
 use crate::components::sprite::Sprite;
 use crate::script::Script;
 use crate::{config::Config, input::Input};
@@ -30,35 +30,34 @@ impl Script for BulletManager {
         let bullet_ids = world.query_with::<Bullet>();
         // Spawn bullets on player
         if input.space {
-            let bullet_id = world.spawn();
+            if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
+                let bullet_id = world.spawn();
 
-            world.add_component::<Sprite>(bullet_id, Sprite::new("src/sprites/bullet.png"));
-            world.add_component::<Bullet>(bullet_id, Bullet::new());
+                world.add_component::<Sprite>(bullet_id, Sprite::new("src/sprites/bullet.png"));
+                world.add_component::<Bullet>(bullet_id, Bullet::new());
+                let mut player_forward = Vec3::ZERO;
+                {
+                    let player_transform = world.get_component::<Transform>(*player_id).unwrap();
+                    player_forward = player_transform.rotation * Vec3::NEG_Y;
+                }
 
-            let player_id = world.query_with::<PlayerTag>().first().unwrap().clone();
+                {
+                    let bullet_component = world.get_component_mut::<Bullet>(bullet_id).unwrap();
+                    bullet_component.forward = player_forward.clone();
+                    bullet_component.lifetime = 0.0;
+                }
 
-            let mut player_forward = Vec3::ZERO;
-            {
-                let player_transform = world.get_component::<Transform>(player_id).unwrap();
-                player_forward = player_transform.rotation * Vec3::NEG_Y;
+                let player_transform = world.get_component::<Transform>(*player_id).unwrap();
+                let player_position = player_transform.position.clone();
+
+                let player_sprite = world.get_component::<Sprite>(*player_id).unwrap();
+                let sprite_size = player_sprite.texture.as_ref().unwrap().height().clone();
+                let margin = 10.0;
+                let offset = ((sprite_size as f32 / 2.0) + margin) * player_forward;
+
+                let bullet_transform = world.get_component_mut::<Transform>(bullet_id).unwrap();
+                bullet_transform.position = player_position + offset;
             }
-
-            {
-                let bullet_component = world.get_component_mut::<Bullet>(bullet_id).unwrap();
-                bullet_component.forward = player_forward.clone();
-                bullet_component.lifetime = 0.0;
-            }
-
-            let player_transform = world.get_component::<Transform>(player_id).unwrap();
-            let player_position = player_transform.position.clone();
-
-            let player_sprite = world.get_component::<Sprite>(player_id).unwrap();
-            let sprite_size = player_sprite.texture.as_ref().unwrap().height().clone();
-            let margin = 10.0;
-            let offset = ((sprite_size as f32 / 2.0) + margin) * player_forward;
-
-            let bullet_transform = world.get_component_mut::<Transform>(bullet_id).unwrap();
-            bullet_transform.position = player_position + offset;
         }
 
         // Move Bullets

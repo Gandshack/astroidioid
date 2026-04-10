@@ -14,7 +14,7 @@ impl Asteroid {
     pub fn new(stage: u32) -> Self {
         Self {
             velocity: Vec3::ZERO,
-            speed: 10.0,
+            speed: 20.0,
             stage,
             radius: 0,
         }

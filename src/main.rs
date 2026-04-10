@@ -10,6 +10,7 @@ use raylib::math::{Rectangle, Vector2};
 use raylib::prelude::RaylibTexture2D;
 use raylib::{color::Color, prelude::RaylibDraw};
 
+use crate::components::game_state::GameState;
 use crate::components::sprite::Sprite;
 use crate::config::Config;
 use crate::input::Input;
@@ -17,12 +18,14 @@ use crate::script::Script;
 use crate::scripts::asteroid_manager::AsteroidManager;
 use crate::scripts::bullet_manager::BulletManager;
 use crate::scripts::collision_manager::CollisionManager;
+use crate::scripts::game_manager::GameManager;
 use crate::scripts::player::Player;
 use crate::scripts::screen_wrapper::ScreenWrapper;
 
 fn main() {
     let mut input = Input::new();
     let mut scripts: Vec<Box<dyn Script>> = vec![
+        Box::new(GameManager::new()),
         Box::new(ScreenWrapper::new()),
         Box::new(Player::new()),
         Box::new(AsteroidManager::new()),
@@ -40,6 +43,9 @@ fn main() {
     rl.set_window_monitor(0);
 
     let mut world = World::new();
+
+    let game_state = world.spawn();
+    world.add_component::<GameState>(game_state, GameState::new());
 
     for script in &mut scripts {
         script.start(&mut world, &mut input, &config);
@@ -104,5 +110,22 @@ fn main() {
                 );
             }
         }
+
+        let score = world.get_component::<GameState>(game_state).unwrap().score;
+        let lives = world.get_component::<GameState>(game_state).unwrap().lives;
+        d.draw_text(
+            format!("LIVES: {}", lives).as_str(),
+            10,
+            10,
+            16,
+            Color::WHITE,
+        );
+        d.draw_text(
+            format!("SCORE: {}", score).as_str(),
+            10,
+            30,
+            16,
+            Color::WHITE,
+        );
     }
 }
