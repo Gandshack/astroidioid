@@ -41,7 +41,7 @@ impl Script for CollisionManager {
                     match stage {
                         0 => {
                             //spawn 2 stage 1 asteroids (Medium Sized)
-                            let texture_path = "src/sprites/asteroid_medium.png";
+                            let texture_path = "assets/sprites/asteroid_medium.png";
                             let size = 32;
                             let position = asteroid_position;
                             let new_stage = 1;
@@ -68,7 +68,7 @@ impl Script for CollisionManager {
                         1 => {
                             //spawn 2 stage 1 asteroids (Small Sized)
                             //                             //spawn 2 stage 1 asteroids (Medium Sized)
-                            let texture_path = "src/sprites/asteroid_small.png";
+                            let texture_path = "assets/sprites/asteroid_small.png";
                             let size = 16;
                             let position = asteroid_position;
                             let new_stage = 2;

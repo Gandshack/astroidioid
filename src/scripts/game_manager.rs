@@ -26,7 +26,7 @@ impl Script for GameManager {
         if world.query_with::<PlayerComponent>().first().is_none() && game_state.lives != 0 {
             let id = world.spawn();
             world.add_component::<PlayerComponent>(id, PlayerComponent::new());
-            world.add_component::<Sprite>(id, Sprite::new("src/sprites/player.png"));
+            world.add_component::<Sprite>(id, Sprite::new("assets/sprites/player.png"));
             //Center Player
             let transform = world.get_component_mut::<Transform>(id).unwrap();
             transform.position = Vec3 {
@@ -37,7 +37,7 @@ impl Script for GameManager {
         } else if game_state.lives == 0 && self.game_over == false {
             self.game_over = true;
             let id = world.spawn();
-            world.add_component::<Sprite>(id, Sprite::new("src/sprites/game_over.png"));
+            world.add_component::<Sprite>(id, Sprite::new("assets/sprites/game_over.png"));
             //Center Player
             let transform = world.get_component_mut::<Transform>(id).unwrap();
             transform.position = Vec3 {

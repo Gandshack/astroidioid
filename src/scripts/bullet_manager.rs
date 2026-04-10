@@ -33,7 +33,7 @@ impl Script for BulletManager {
             if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
                 let bullet_id = world.spawn();
 
-                world.add_component::<Sprite>(bullet_id, Sprite::new("src/sprites/bullet.png"));
+                world.add_component::<Sprite>(bullet_id, Sprite::new("assets/sprites/bullet.png"));
                 world.add_component::<Bullet>(bullet_id, Bullet::new());
                 let mut player_forward = Vec3::ZERO;
                 {
