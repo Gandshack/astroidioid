@@ -1,6 +1,8 @@
 use phantom_core::ecs::{World, components::Transform};
 
-use crate::{components::sprite::Sprite, config::Config, input::Input, script::Script};
+use crate::{
+    audio::Audio, components::sprite::Sprite, config::Config, input::Input, script::Script,
+};
 
 pub struct ScreenWrapper {
     wrap_tolerance: f32,
@@ -15,8 +17,8 @@ impl ScreenWrapper {
 }
 
 impl Script for ScreenWrapper {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         for id in world.query_with2::<Transform, Sprite>() {
             let position = world
                 .get_component::<Transform>(id)

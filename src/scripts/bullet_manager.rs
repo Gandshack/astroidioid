@@ -1,3 +1,4 @@
+use crate::audio::Audio;
 use crate::components::bullet::Bullet;
 use crate::components::player_component::PlayerComponent;
 use crate::components::sprite::Sprite;
@@ -25,11 +26,12 @@ impl BulletManager {
 }
 
 impl Script for BulletManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         let bullet_ids = world.query_with::<Bullet>();
         // Spawn bullets on player
         if input.space {
+            audio.shoot.play();
             if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
                 let bullet_id = world.spawn();
 

@@ -1,4 +1,5 @@
 use crate::{
+    audio::Audio,
     components::{player_component::PlayerComponent, sprite::Sprite},
     config::Config,
     input::Input,
@@ -27,8 +28,8 @@ impl Player {
 }
 
 impl Script for Player {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
             let transform = world.get_component_mut::<Transform>(*player_id).unwrap();
 

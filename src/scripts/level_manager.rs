@@ -1,5 +1,6 @@
 use std::f64::consts::PI;
 
+use crate::audio::Audio;
 use crate::components::asteroid::Asteroid;
 use crate::components::game_state::GameState;
 use crate::components::sprite::Sprite;
@@ -19,8 +20,8 @@ impl LevelManager {
 }
 
 impl Script for LevelManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         //Check for all asteroids dead the bump level
         if world.query_with::<Asteroid>().is_empty() {
             let game_state_id = world.query_with::<GameState>().first().unwrap().clone();

@@ -1,3 +1,4 @@
+mod audio;
 mod components;
 mod config;
 mod game;
@@ -6,10 +7,13 @@ mod script;
 mod scripts;
 
 use phantom_core::ecs::{World, components::Transform};
+
+use raylib::audio::RaylibAudio;
 use raylib::math::{Rectangle, Vector2};
 use raylib::prelude::RaylibTexture2D;
 use raylib::{color::Color, prelude::RaylibDraw};
 
+use crate::audio::Audio;
 use crate::components::game_state::GameState;
 use crate::components::sprite::Sprite;
 use crate::config::Config;
@@ -43,6 +47,8 @@ fn main() {
 
     let (mut rl, thread) = raylib::init().size(config.width, config.height).build();
     rl.set_window_monitor(0);
+    let audio_device = RaylibAudio::init_audio_device().unwrap();
+    let audio_manager = Audio::new(&audio_device);
 
     let mut world = World::new();
 
@@ -50,7 +56,7 @@ fn main() {
     world.add_component::<GameState>(game_state, GameState::new());
 
     for script in &mut scripts {
-        script.start(&mut world, &mut input, &config);
+        script.start(&mut world, &mut input, &config, &audio_manager);
     }
 
     while !rl.window_should_close() {
@@ -64,7 +70,7 @@ fn main() {
 
         //Run Scripts Update
         for script in &mut scripts {
-            script.update(&mut world, &mut input, &config);
+            script.update(&mut world, &mut input, &config, &audio_manager);
         }
         let entities = &world.query_with2::<Transform, Sprite>();
 

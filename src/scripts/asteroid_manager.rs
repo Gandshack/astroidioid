@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::{
+    audio::Audio,
     components::{asteroid::Asteroid, sprite::Sprite},
     config::Config,
     input::Input,
@@ -19,9 +20,9 @@ impl AsteroidManager {
 }
 
 impl Script for AsteroidManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
 
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         let asteroid_ids = world.query_with::<Asteroid>();
         for id in asteroid_ids.iter() {
             let mut forward = Vec3::ZERO;

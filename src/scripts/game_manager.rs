@@ -1,3 +1,4 @@
+use crate::audio::Audio;
 use crate::components::game_state::GameState;
 use crate::components::player_component::PlayerComponent;
 use crate::components::sprite::Sprite;
@@ -18,8 +19,8 @@ impl GameManager {
 }
 
 impl Script for GameManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         let game_state_id = world.query_with::<GameState>().first().unwrap().clone();
         let game_state = world.get_component::<GameState>(game_state_id).unwrap();
 

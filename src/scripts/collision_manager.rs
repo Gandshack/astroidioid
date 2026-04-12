@@ -1,5 +1,6 @@
 use std::f32::consts::PI;
 
+use crate::audio::Audio;
 use crate::components::asteroid::Asteroid;
 use crate::components::bullet::Bullet;
 use crate::components::game_state::GameState;
@@ -21,8 +22,8 @@ impl CollisionManager {
 }
 
 impl Script for CollisionManager {
-    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config) {}
-    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config) {
+    fn start(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {}
+    fn update(&mut self, world: &mut World, input: &mut Input, config: &Config, audio: &Audio) {
         let game_state_id = world.query_with::<GameState>().first().unwrap().clone();
         // Bullet to asteroid
         for bullet in world.query_with::<Bullet>() {
@@ -106,6 +107,9 @@ impl Script for CollisionManager {
                             game_state.score += 500;
                         }
                     }
+                    let pitch = rng().random_range(0.7..1.8);
+                    audio.explode.set_pitch(pitch);
+                    audio.explode.play();
                     world.destroy(asteroid);
                     world.destroy(bullet);
                     break;
@@ -129,6 +133,9 @@ impl Script for CollisionManager {
                 if distance_to_player <= collision_radius as f32 {
                     let game_state = world.get_component_mut::<GameState>(game_state_id).unwrap();
                     game_state.lives -= 1;
+                    let pitch = rng().random_range(0.7..1.8);
+                    audio.explode.set_pitch(pitch);
+                    audio.explode.play();
                     world.destroy(*player_id);
                     break;
                 }
@@ -156,6 +163,9 @@ impl Script for CollisionManager {
                 {
                     let game_state = world.get_component_mut::<GameState>(game_state_id).unwrap();
                     game_state.lives -= 1;
+                    let pitch = rng().random_range(0.7..1.8);
+                    audio.explode.set_pitch(pitch);
+                    audio.explode.play();
                     world.destroy(*player_id);
                     break;
                 }
