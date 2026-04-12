@@ -49,6 +49,8 @@ fn main() {
     rl.set_window_monitor(0);
     let audio_device = RaylibAudio::init_audio_device().unwrap();
     let audio_manager = Audio::new(&audio_device);
+    audio_manager.shoot.set_volume(0.5);
+    audio_manager.explode.set_volume(0.5);
 
     let mut world = World::new();
 

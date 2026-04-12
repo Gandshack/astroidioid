@@ -4,6 +4,7 @@ pub struct Audio<'a> {
     pub audio_device: &'a RaylibAudio,
     pub shoot: Sound<'a>,
     pub explode: Sound<'a>,
+    pub next_level: Sound<'a>,
 }
 
 impl<'a> Audio<'a> {
@@ -15,6 +16,9 @@ impl<'a> Audio<'a> {
                 .unwrap(),
             explode: audio_device
                 .new_sound("assets/audio/explosion.wav")
+                .unwrap(),
+            next_level: audio_device
+                .new_sound("assets/audio/Jingle_Achievement_01.wav")
                 .unwrap(),
         }
     }

@@ -3,6 +3,7 @@ use std::f64::consts::PI;
 use crate::audio::Audio;
 use crate::components::asteroid::Asteroid;
 use crate::components::game_state::GameState;
+use crate::components::player_component::PlayerComponent;
 use crate::components::sprite::Sprite;
 use crate::script::Script;
 use crate::{config::Config, input::Input};
@@ -29,6 +30,15 @@ impl Script for LevelManager {
             game_state.level += 1;
 
             spawn_asteroids(game_state.level, world, config);
+            audio.next_level.play();
+            if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
+                let transform = world.get_component_mut::<Transform>(*player_id).unwrap();
+                transform.position = Vec3 {
+                    x: config.width as f32 / 2.0,
+                    y: config.height as f32 / 2.0,
+                    z: 0.0,
+                }
+            }
         };
     }
 }
