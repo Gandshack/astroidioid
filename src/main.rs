@@ -19,6 +19,7 @@ use crate::scripts::asteroid_manager::AsteroidManager;
 use crate::scripts::bullet_manager::BulletManager;
 use crate::scripts::collision_manager::CollisionManager;
 use crate::scripts::game_manager::GameManager;
+use crate::scripts::level_manager::LevelManager;
 use crate::scripts::player::Player;
 use crate::scripts::screen_wrapper::ScreenWrapper;
 
@@ -31,6 +32,7 @@ fn main() {
         Box::new(AsteroidManager::new()),
         Box::new(BulletManager::new()),
         Box::new(CollisionManager::new()),
+        Box::new(LevelManager::new()),
     ];
 
     let mut config = Config {
@@ -113,18 +115,26 @@ fn main() {
 
         let score = world.get_component::<GameState>(game_state).unwrap().score;
         let lives = world.get_component::<GameState>(game_state).unwrap().lives;
+        let level = world.get_component::<GameState>(game_state).unwrap().level;
         d.draw_text(
             format!("LIVES: {}", lives).as_str(),
             10,
-            10,
+            40,
             16,
             Color::WHITE,
         );
         d.draw_text(
             format!("SCORE: {}", score).as_str(),
             10,
-            30,
+            60,
             16,
+            Color::WHITE,
+        );
+        d.draw_text(
+            format!("LEVEL: {}", level).as_str(),
+            10,
+            10,
+            25,
             Color::WHITE,
         );
     }
