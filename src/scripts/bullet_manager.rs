@@ -7,6 +7,7 @@ use crate::{config::Config, input::Input};
 use glam::Vec3;
 use phantom_core::ecs::World;
 use phantom_core::ecs::components::Transform;
+use raylib::color::Color;
 use raylib::prelude::RaylibTexture2D;
 
 pub struct BulletManager {
@@ -35,7 +36,9 @@ impl Script for BulletManager {
             if let Some(player_id) = world.query_with::<PlayerComponent>().first() {
                 let bullet_id = world.spawn();
 
-                world.add_component::<Sprite>(bullet_id, Sprite::new("assets/sprites/bullet.png"));
+                let bullet_sprite = world
+                    .add_component::<Sprite>(bullet_id, Sprite::new("assets/sprites/bullet.png"));
+                bullet_sprite.tint = Color::YELLOW;
                 world.add_component::<Bullet>(bullet_id, Bullet::new());
                 let mut player_forward = Vec3::ZERO;
                 {
@@ -70,11 +73,19 @@ impl Script for BulletManager {
 
             let bullet_transform = world.get_component_mut::<Transform>(bullet).unwrap();
             bullet_transform.position += velocity * config.delta_time;
-
+            let factor = {
+                let bullet_component = world.get_component::<Bullet>(bullet).unwrap();
+                bullet_component.lifetime / bullet_component.max_lifetime
+            };
+            if let Some(bullet_sprite) = world.get_component_mut::<Sprite>(bullet) {
+                bullet_sprite.tint = bullet_sprite.tint.brightness(factor);
+            }
             let bullet_component = world.get_component_mut::<Bullet>(bullet).unwrap();
             bullet_component.lifetime += config.delta_time;
+
             if bullet_component.lifetime >= bullet_component.max_lifetime {
                 world.destroy(bullet);
+
                 // bullet_component.lifetime = 0.0;
                 // bullet_component.velocity = Vec3::ZERO;
                 // bullet_component.forward = Vec3::ZERO;

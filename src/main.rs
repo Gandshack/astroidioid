@@ -116,7 +116,7 @@ fn main() {
                         .to_euler(glam::EulerRot::XYZ)
                         .2
                         .to_degrees(),
-                    Color::WHITE,
+                    sprite.tint,
                 );
             }
         }
