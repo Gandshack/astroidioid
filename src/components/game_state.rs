@@ -12,7 +12,7 @@ impl Component for GameState {}
 impl GameState {
     pub fn new() -> Self {
         Self {
-            level: 49,
+            level: 0,
             lives: 3,
             score: 0,
         }
